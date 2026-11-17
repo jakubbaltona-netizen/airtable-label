@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Etykieta statku</title>
+  <style>
+    :root { --ink:#000; --paper:#fff; --ui:#f3f4f6; --line:#d1d5db; }
+    * { box-sizing:border-box; }
+    html,body { margin:0; min-height:100%; background:var(--ui); font-family:Arial,Helvetica,sans-serif; color:var(--ink); }
+    .toolbar { display:flex; gap:10px; align-items:center; flex-wrap:wrap; padding:12px; background:#fff; border-bottom:1px solid var(--line); }
+    .toolbar label { font-size:14px; font-weight:700; }
+    .toolbar input { height:38px; padding:6px 9px; border:1px solid #9ca3af; border-radius:7px; font-size:15px; }
+    #shipInput { min-width:260px; flex:1; }
+    #typeInput { min-width:160px; }
+    button { height:38px; padding:0 15px; border:0; border-radius:7px; background:#e4003b; color:#fff; font-weight:700; cursor:pointer; }
+    button.secondary { background:#374151; }
+    button:focus,input:focus { outline:3px solid #93c5fd; outline-offset:2px; }
+    .hint { padding:8px 12px; font-size:12px; color:#4b5563; }
+    .sheet { width:297mm; height:210mm; margin:12px auto; padding:10mm; background:var(--paper); overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; page-break-after:always; }
+    .type { width:100%; margin:0 0 10mm; font-size:34pt; line-height:1; font-weight:700; text-transform:uppercase; white-space:nowrap; }
+    .ship { width:100%; height:125mm; display:flex; align-items:center; justify-content:center; font-size:150pt; line-height:.88; font-weight:900; text-transform:uppercase; overflow:hidden; overflow-wrap:anywhere; }
+    .error { display:none; max-width:900px; margin:12px auto; padding:12px; border:1px solid #dc2626; background:#fee2e2; color:#991b1b; border-radius:8px; }
+    @page { size:A4 landscape; margin:0; }
+    @media print {
+      html,body { background:#fff; }
+      .toolbar,.hint,.error { display:none !important; }
+      .sheet { margin:0; box-shadow:none; }
+    }
+    @media (max-width:1000px) {
+      .sheet { transform-origin:top left; transform:scale(.55); margin:10px; }
+      body { overflow-x:auto; }
+    }
+  </style>
+</head>
+<body>
+  <form class="toolbar" id="controls">
+    <label for="shipInput">Statek</label>
+    <input id="shipInput" autocomplete="off">
+    <label for="typeInput">Typ</label>
+    <input id="typeInput" autocomplete="off">
+    <button type="submit">Drukuj</button>
+    <button type="button" class="secondary" id="refreshBtn">Odśwież podgląd</button>
+  </form>
+  <div class="hint">Format: A4 poziomo. Przy wydruku wybierz skalę 100% i wyłącz nagłówki oraz stopki przeglądarki.</div>
+  <div class="error" id="error" role="alert"></div>
+  <main id="pages"></main>
+
+  <script>
+  (() => {
+    const root = document;
+    const params = new URLSearchParams(location.search);
+    const clean = (v, fallback='') => (v ?? fallback).toString().replace(/[<>]/g,'').trim().slice(0,180);
+    const shipInput = root.getElementById('shipInput');
+    const typeInput = root.getElementById('typeInput');
+    const pages = root.getElementById('pages');
+    const error = root.getElementById('error');
+    shipInput.value = clean(params.get('ship'));
+    typeInput.value = clean(params.get('type'));
+
+    function fit(el, max=150, min=28) {
+      let size=max;
+      el.style.fontSize=size+'pt';
+      while (size>min && (el.scrollWidth>el.clientWidth || el.scrollHeight>el.clientHeight)) {
+        size-=2;
+        el.style.fontSize=size+'pt';
+      }
+    }
+
+    function render() {
+      const ship=clean(shipInput.value);
+      const type=clean(typeInput.value);
+      const requested=Number.parseInt(params.get('copies') || '1',10);
+      const copies=Number.isFinite(requested) ? Math.min(20,Math.max(1,requested)) : 1;
+      pages.replaceChildren();
+      if (!ship) {
+        error.textContent='Brak nazwy statku. Sprawdź pole Statek / Statek_name w Airtable.';
+        error.style.display='block';
+        return false;
+      }
+      error.style.display='none';
+      for (let i=0;i<copies;i++) {
+        const page=document.createElement('section');
+        page.className='sheet';
+        const typeEl=document.createElement('div');
+        typeEl.className='type';
+        typeEl.textContent=type;
+        typeEl.style.display=type ? 'block' : 'none';
+        const shipEl=document.createElement('div');
+        shipEl.className='ship';
+        shipEl.textContent=ship;
+        page.append(typeEl,shipEl);
+        pages.append(page);
+        requestAnimationFrame(()=>fit(shipEl));
+      }
+      return true;
+    }
+
+    root.getElementById('controls').addEventListener('submit', e => {
+      e.preventDefault();
+      if (render()) setTimeout(()=>window.print(),120);
+    });
+    root.getElementById('refreshBtn').addEventListener('click',render);
+    window.addEventListener('resize',()=>root.querySelectorAll('.ship').forEach(el=>fit(el)));
+    render();
+    if (params.get('print')==='1' && shipInput.value) setTimeout(()=>window.print(),500);
+  })();
+  </script>
+</body>
+</html>
