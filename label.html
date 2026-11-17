@@ -33,23 +33,24 @@
         overflow:hidden !important;
       }
       .toolbar,.hint,.error { display:none !important; }
-      #pages { margin:0 !important; padding:0 !important; width:297mm !important; height:210mm !important; overflow:hidden !important; }
+      #pages { margin:0 !important; padding:0 !important; width:297mm !important; height:auto !important; overflow:visible !important; }
       .sheet {
         margin:0 !important;
         padding:3mm !important;
         width:297mm !important;
         height:210mm !important;
-        min-height:210mm !important;
-        max-height:210mm !important;
+        min-height:0 !important;
+        max-height:none !important;
         box-shadow:none !important;
-        page-break-after:auto !important;
-        break-after:auto !important;
+        page-break-after:always !important;
+        break-after:page !important;
         overflow:hidden !important;
         transform:none !important;
       }
+      .sheet:last-child { page-break-after:auto !important; break-after:auto !important; }
       .ship { height:204mm !important; width:291mm !important; }
     }
-    @media (max-width:1000px) {
+    @media screen and (max-width:1000px) {
       .sheet { transform-origin:top left; transform:scale(.55); margin:10px; }
       body { overflow-x:auto; }
     }
@@ -172,7 +173,8 @@
     root.getElementById('refreshBtn').addEventListener('click',render);
     window.addEventListener('resize',()=>root.querySelectorAll('.ship').forEach(el=>fit(el)));
     render();
-    if (params.get('print')==='1' && shipInput.value) setTimeout(()=>window.print(),500);
+    window.addEventListener('beforeprint', () => { root.querySelectorAll('.ship').forEach(el => fit(el)); });
+    if (params.get('print')==='1' && shipInput.value) setTimeout(() => { root.querySelectorAll('.ship').forEach(el => fit(el)); setTimeout(()=>window.print(),120); },700);
   })();
   </script>
 </body>
