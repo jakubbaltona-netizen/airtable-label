@@ -17,15 +17,37 @@
     button.secondary { background:#374151; }
     button:focus,input:focus { outline:3px solid #93c5fd; outline-offset:2px; }
     .hint { padding:8px 12px; font-size:12px; color:#4b5563; }
-    .sheet { width:297mm; height:210mm; margin:12px auto; padding:4mm; background:var(--paper); overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; page-break-after:always; }
-    .type { width:100%; margin:0 0 4mm; font-size:40pt; line-height:1; font-weight:700; text-transform:uppercase; white-space:nowrap; }
-    .ship { width:100%; height:165mm; display:flex; align-items:center; justify-content:center; font-size:220pt; line-height:.88; font-weight:900; text-transform:uppercase; overflow:hidden; overflow-wrap:normal; word-break:normal; }
+    .sheet { width:297mm; height:210mm; margin:12px auto; padding:0; background:var(--paper); overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; page-break-after:auto; }
+    .type { width:100%; margin:0; font-size:40pt; line-height:1; font-weight:700; text-transform:uppercase; white-space:nowrap; }
+    .ship { width:100%; height:210mm; display:flex; align-items:center; justify-content:center; font-size:220pt; line-height:.88; font-weight:900; text-transform:uppercase; overflow:hidden; overflow-wrap:normal; word-break:normal; }
     .error { display:none; max-width:900px; margin:12px auto; padding:12px; border:1px solid #dc2626; background:#fee2e2; color:#991b1b; border-radius:8px; }
     @page { size: A4 landscape; margin: 0; }
     @media print {
-      html,body { background:#fff; }
+      html, body {
+        margin:0 !important;
+        padding:0 !important;
+        width:297mm !important;
+        height:210mm !important;
+        min-height:0 !important;
+        background:#fff !important;
+        overflow:hidden !important;
+      }
       .toolbar,.hint,.error { display:none !important; }
-      .sheet { margin:0; box-shadow:none; }
+      #pages { margin:0 !important; padding:0 !important; width:297mm !important; height:210mm !important; overflow:hidden !important; }
+      .sheet {
+        margin:0 !important;
+        padding:3mm !important;
+        width:297mm !important;
+        height:210mm !important;
+        min-height:210mm !important;
+        max-height:210mm !important;
+        box-shadow:none !important;
+        page-break-after:auto !important;
+        break-after:auto !important;
+        overflow:hidden !important;
+        transform:none !important;
+      }
+      .ship { height:204mm !important; width:291mm !important; }
     }
     @media (max-width:1000px) {
       .sheet { transform-origin:top left; transform:scale(.55); margin:10px; }
@@ -58,7 +80,7 @@
     shipInput.value = clean(params.get('ship'));
     typeInput.value = clean(params.get('type'));
 
-    function fit(el, max=220, min=28) {
+    function fit(el, max=300, min=28) {
       const raw = (el.dataset.raw || el.textContent || '').trim().replace(/\s+/g, ' ');
       el.dataset.raw = raw;
       const words = raw.split(' ').filter(Boolean);
