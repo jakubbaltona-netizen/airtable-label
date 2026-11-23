@@ -4,21 +4,109 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Etykieta statku</title>
+
   <style>
-    :root { --ink:#000; --paper:#fff; --ui:#f3f4f6; --line:#d1d5db; }
-    * { box-sizing:border-box; }
-    html,body { margin:0; min-height:100%; background:var(--ui); font-family:Arial,Helvetica,sans-serif; color:var(--ink); }
-    .toolbar { display:flex; gap:10px; align-items:center; flex-wrap:wrap; padding:12px; background:#fff; border-bottom:1px solid var(--line); }
-    .toolbar label { font-size:14px; font-weight:700; }
-    .toolbar input { height:38px; padding:6px 9px; border:1px solid #9ca3af; border-radius:7px; font-size:15px; }
-    #shipInput { min-width:260px; flex:1; }
-    #typeInput { min-width:160px; }
-    button { height:38px; padding:0 15px; border:0; border-radius:7px; background:#e4003b; color:#fff; font-weight:700; cursor:pointer; }
-    button.secondary { background:#374151; }
-    button:focus,input:focus { outline:3px solid #93c5fd; outline-offset:2px; }
-    .hint { padding:8px 12px; font-size:12px; color:#4b5563; }
-    .sheet { width:297mm; height:210mm; margin:12px auto; padding:0; background:var(--paper); overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; page-break-after:auto; }
-    .type { width:100%; margin:0; font-size:40pt; line-height:1; font-weight:700; text-transform:uppercase; white-space:nowrap; }
+    :root {
+      --ink:#000;
+      --paper:#fff;
+      --ui:#f3f4f6;
+      --line:#d1d5db;
+    }
+
+    * {
+      box-sizing:border-box;
+    }
+
+    html,body {
+      margin:0;
+      min-height:100%;
+      background:var(--ui);
+      font-family:Arial,Helvetica,sans-serif;
+      color:var(--ink);
+    }
+
+    .toolbar {
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      padding:12px;
+      background:#fff;
+      border-bottom:1px solid var(--line);
+    }
+
+    .toolbar label {
+      font-size:14px;
+      font-weight:700;
+    }
+
+    .toolbar input {
+      height:38px;
+      padding:6px 9px;
+      border:1px solid #9ca3af;
+      border-radius:7px;
+      font-size:15px;
+    }
+
+    #shipInput {
+      min-width:260px;
+      flex:1;
+    }
+
+    #typeInput {
+      min-width:160px;
+    }
+
+    button {
+      height:38px;
+      padding:0 15px;
+      border:0;
+      border-radius:7px;
+      background:#e4003b;
+      color:#fff;
+      font-weight:700;
+      cursor:pointer;
+    }
+
+    button.secondary {
+      background:#374151;
+    }
+
+    button:focus,input:focus {
+      outline:3px solid #93c5fd;
+      outline-offset:2px;
+    }
+
+    .hint {
+      padding:8px 12px;
+      font-size:12px;
+      color:#4b5563;
+    }
+
+    .sheet {
+      width:297mm;
+      height:210mm;
+      margin:12px auto;
+      padding:0;
+      background:var(--paper);
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      page-break-after:auto;
+    }
+
+    .type {
+      width:100%;
+      margin:0;
+      font-size:40pt;
+      line-height:1;
+      font-weight:700;
+      text-transform:uppercase;
+      white-space:nowrap;
+    }
 
     .ship {
       width:100%;
@@ -28,18 +116,35 @@
       justify-content:center;
       font-size:220pt;
       line-height:.88;
-      font-weight:400;
+
+      /* CIENKA CZCIONKA */
+      font-family:"Arial Narrow",Arial,Helvetica,sans-serif;
+      font-weight:300;
+
       text-transform:uppercase;
       overflow:hidden;
       overflow-wrap:normal;
       word-break:normal;
     }
 
-    .error { display:none; max-width:900px; margin:12px auto; padding:12px; border:1px solid #dc2626; background:#fee2e2; color:#991b1b; border-radius:8px; }
+    .error {
+      display:none;
+      max-width:900px;
+      margin:12px auto;
+      padding:12px;
+      border:1px solid #dc2626;
+      background:#fee2e2;
+      color:#991b1b;
+      border-radius:8px;
+    }
 
-    @page { size: A4 landscape; margin: 0; }
+    @page {
+      size:A4 landscape;
+      margin:0;
+    }
 
     @media print {
+
       html, body {
         margin:0 !important;
         padding:0 !important;
@@ -50,7 +155,9 @@
         overflow:hidden !important;
       }
 
-      .toolbar,.hint,.error {
+      .toolbar,
+      .hint,
+      .error {
         display:none !important;
       }
 
@@ -88,6 +195,7 @@
     }
 
     @media screen and (max-width:1000px) {
+
       .sheet {
         transform-origin:top left;
         transform:scale(.55);
@@ -104,6 +212,7 @@
 <body>
 
   <form class="toolbar" id="controls">
+
     <label for="shipInput">Statek</label>
     <input id="shipInput" autocomplete="off">
 
@@ -111,21 +220,36 @@
     <input id="typeInput" autocomplete="off">
 
     <button type="submit">Drukuj</button>
-    <button type="button" class="secondary" id="refreshBtn">Odśwież podgląd</button>
+
+    <button
+      type="button"
+      class="secondary"
+      id="refreshBtn">
+      Odśwież podgląd
+    </button>
+
   </form>
 
   <div class="hint">
     Format: A4 poziomo. Przy wydruku wybierz skalę 100% i wyłącz nagłówki oraz stopki przeglądarki.
   </div>
 
-  <div class="error" id="error" role="alert"></div>
+  <div
+    class="error"
+    id="error"
+    role="alert">
+  </div>
 
   <main id="pages"></main>
 
   <script>
+
   (() => {
+
     const root = document;
-    const params = new URLSearchParams(location.search);
+
+    const params =
+      new URLSearchParams(location.search);
 
     const clean = (v, fallback='') =>
       (v ?? fallback)
@@ -134,47 +258,83 @@
         .trim()
         .slice(0,180);
 
-    const shipInput = root.getElementById('shipInput');
-    const typeInput = root.getElementById('typeInput');
-    const pages = root.getElementById('pages');
-    const error = root.getElementById('error');
 
-    shipInput.value = clean(params.get('ship'));
-    typeInput.value = clean(params.get('type'));
+    const shipInput =
+      root.getElementById('shipInput');
+
+    const typeInput =
+      root.getElementById('typeInput');
+
+    const pages =
+      root.getElementById('pages');
+
+    const error =
+      root.getElementById('error');
+
+
+    shipInput.value =
+      clean(params.get('ship'));
+
+    typeInput.value =
+      clean(params.get('type'));
+
 
     function fit(el, max=300, min=28) {
-      const raw = (el.dataset.raw || el.textContent || '')
-        .trim()
-        .replace(/\s+/g, ' ');
+
+      const raw =
+        (el.dataset.raw || el.textContent || '')
+          .trim()
+          .replace(/\s+/g, ' ');
 
       el.dataset.raw = raw;
 
-      const words = raw.split(' ').filter(Boolean);
+      const words =
+        raw.split(' ').filter(Boolean);
 
-      // Build only sensible word-boundary layouts: one line first,
-      // then balanced 2/3-line variants for multi-word vessel names.
+
+      // Najpierw jedna linia.
+      // Następnie sprawdzane są sensowne
+      // podziały na 2 lub 3 linie.
+
       const layouts = [[raw]];
 
+
       if (words.length > 1) {
+
         for (let i=1; i<words.length; i++) {
+
           layouts.push([
             words.slice(0,i).join(' '),
             words.slice(i).join(' ')
           ]);
+
         }
+
       }
 
+
       if (words.length > 2) {
+
         for (let i=1; i<words.length-1; i++) {
+
           for (let j=i+1; j<words.length; j++) {
+
             layouts.push([
+
               words.slice(0,i).join(' '),
+
               words.slice(i,j).join(' '),
+
               words.slice(j).join(' ')
+
             ]);
+
           }
+
         }
+
       }
+
 
       let best = {
         size:min,
@@ -182,159 +342,314 @@
         score:-1
       };
 
+
       for (const lines of layouts) {
 
-        el.textContent = lines.join('\n');
-        el.style.whiteSpace = 'pre-line';
+        el.textContent =
+          lines.join('\n');
+
+        el.style.whiteSpace =
+          'pre-line';
+
 
         let size=max;
-        el.style.fontSize=size+'pt';
+
+        el.style.fontSize =
+          size+'pt';
+
 
         while (
-          size>min &&
+          size > min &&
           (
-            el.scrollWidth>el.clientWidth ||
-            el.scrollHeight>el.clientHeight
+            el.scrollWidth > el.clientWidth ||
+            el.scrollHeight > el.clientHeight
           )
         ) {
-          size-=2;
-          el.style.fontSize=size+'pt';
+
+          size -= 2;
+
+          el.style.fontSize =
+            size+'pt';
+
         }
 
-        const widths = lines.map(line => {
 
-          const probe=document.createElement('span');
+        const widths =
+          lines.map(line => {
 
-          probe.style.cssText=
-            'position:absolute;' +
-            'visibility:hidden;' +
-            'white-space:nowrap;' +
-            'font:400 '+size+'pt Arial,Helvetica,sans-serif;' +
-            'text-transform:uppercase;';
+            const probe =
+              document.createElement('span');
 
-          probe.textContent=line;
 
-          document.body.appendChild(probe);
+            /*
+              POMIAR UŻYWA TEJ SAMEJ
+              CIENKIEJ CZCIONKI CO ETYKIETA
+            */
 
-          const w=probe.getBoundingClientRect().width;
+            probe.style.cssText =
+              'position:absolute;' +
+              'visibility:hidden;' +
+              'white-space:nowrap;' +
+              'font-weight:300;' +
+              'font-size:'+size+'pt;' +
+              'font-family:"Arial Narrow",Arial,Helvetica,sans-serif;' +
+              'text-transform:uppercase;';
 
-          probe.remove();
 
-          return w;
-        });
+            probe.textContent =
+              line;
 
-        const maxW=Math.max(...widths);
-        const minW=Math.min(...widths);
 
-        // Prefer the largest readable type,
-        // then balanced lines that use the width well.
-        const balance = maxW ? minW/maxW : 0;
-        const score = size*1000 + balance*100 - lines.length;
+            document.body.appendChild(probe);
 
-        if (score>best.score) {
-          best={
+
+            const w =
+              probe.getBoundingClientRect().width;
+
+
+            probe.remove();
+
+
+            return w;
+
+          });
+
+
+        const maxW =
+          Math.max(...widths);
+
+        const minW =
+          Math.min(...widths);
+
+
+        // Preferuje największą możliwą czcionkę.
+        // Przy podobnej wielkości wybiera
+        // bardziej równomierny układ linii.
+
+        const balance =
+          maxW ? minW/maxW : 0;
+
+
+        const score =
+          size*1000 +
+          balance*100 -
+          lines.length;
+
+
+        if (score > best.score) {
+
+          best = {
             size,
             lines,
             score
           };
+
         }
+
       }
 
-      el.textContent=best.lines.join('\n');
-      el.style.whiteSpace='pre-line';
-      el.style.fontSize=best.size+'pt';
+
+      el.textContent =
+        best.lines.join('\n');
+
+      el.style.whiteSpace =
+        'pre-line';
+
+      el.style.fontSize =
+        best.size+'pt';
+
     }
+
 
     function render() {
 
-      const ship=clean(shipInput.value);
-      const type=clean(typeInput.value);
+      const ship =
+        clean(shipInput.value);
 
-      const requested=Number.parseInt(
-        params.get('copies') || '1',
-        10
-      );
+      const type =
+        clean(typeInput.value);
 
-      const copies=Number.isFinite(requested)
-        ? Math.min(20,Math.max(1,requested))
-        : 1;
+
+      const requested =
+        Number.parseInt(
+          params.get('copies') || '1',
+          10
+        );
+
+
+      const copies =
+        Number.isFinite(requested)
+          ? Math.min(
+              20,
+              Math.max(1,requested)
+            )
+          : 1;
+
 
       pages.replaceChildren();
 
+
       if (!ship) {
-        error.textContent=
+
+        error.textContent =
           'Brak nazwy statku. Sprawdź pole Statek / Statek_name w Airtable.';
-        error.style.display='block';
+
+        error.style.display =
+          'block';
+
         return false;
+
       }
 
-      error.style.display='none';
 
-      for (let i=0;i<copies;i++) {
+      error.style.display =
+        'none';
 
-        const page=document.createElement('section');
-        page.className='sheet';
 
-        const typeEl=document.createElement('div');
-        typeEl.className='type';
-        typeEl.textContent=type;
-        typeEl.style.display=type ? 'block' : 'none';
+      for (
+        let i=0;
+        i<copies;
+        i++
+      ) {
 
-        const shipEl=document.createElement('div');
-        shipEl.className='ship';
-        shipEl.textContent=ship;
+        const page =
+          document.createElement('section');
 
-        page.append(typeEl,shipEl);
+        page.className =
+          'sheet';
+
+
+        const typeEl =
+          document.createElement('div');
+
+        typeEl.className =
+          'type';
+
+        typeEl.textContent =
+          type;
+
+        typeEl.style.display =
+          type ? 'block' : 'none';
+
+
+        const shipEl =
+          document.createElement('div');
+
+        shipEl.className =
+          'ship';
+
+        shipEl.textContent =
+          ship;
+
+
+        page.append(
+          typeEl,
+          shipEl
+        );
+
+
         pages.append(page);
 
-        requestAnimationFrame(()=>fit(shipEl));
+
+        requestAnimationFrame(
+          () => fit(shipEl)
+        );
+
       }
 
+
       return true;
+
     }
 
-    root.getElementById('controls')
-      .addEventListener('submit', e => {
-        e.preventDefault();
 
-        if (render()) {
-          setTimeout(()=>window.print(),120);
+    root
+      .getElementById('controls')
+      .addEventListener(
+        'submit',
+        e => {
+
+          e.preventDefault();
+
+          if (render()) {
+
+            setTimeout(
+              () => window.print(),
+              120
+            );
+
+          }
+
         }
-      });
+      );
 
-    root.getElementById('refreshBtn')
-      .addEventListener('click',render);
 
-    window.addEventListener('resize',()=>
-      root.querySelectorAll('.ship')
-        .forEach(el=>fit(el))
+    root
+      .getElementById('refreshBtn')
+      .addEventListener(
+        'click',
+        render
+      );
+
+
+    window.addEventListener(
+      'resize',
+      () =>
+
+        root
+          .querySelectorAll('.ship')
+          .forEach(
+            el => fit(el)
+          )
+
     );
+
 
     render();
 
-    window.addEventListener('beforeprint', () => {
-      root.querySelectorAll('.ship')
-        .forEach(el => fit(el));
-    });
+
+    window.addEventListener(
+      'beforeprint',
+      () => {
+
+        root
+          .querySelectorAll('.ship')
+          .forEach(
+            el => fit(el)
+          );
+
+      }
+    );
+
 
     if (
-      params.get('print')==='1' &&
+      params.get('print') === '1' &&
       shipInput.value
     ) {
-      setTimeout(() => {
 
-        root.querySelectorAll('.ship')
-          .forEach(el => fit(el));
+      setTimeout(
+        () => {
 
-        setTimeout(
-          ()=>window.print(),
-          120
-        );
+          root
+            .querySelectorAll('.ship')
+            .forEach(
+              el => fit(el)
+            );
 
-      },700);
+
+          setTimeout(
+            () => window.print(),
+            120
+          );
+
+        },
+        700
+      );
+
     }
 
   })();
+
   </script>
 
 </body>
