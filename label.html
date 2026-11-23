@@ -19,9 +19,26 @@
     .hint { padding:8px 12px; font-size:12px; color:#4b5563; }
     .sheet { width:297mm; height:210mm; margin:12px auto; padding:0; background:var(--paper); overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; page-break-after:auto; }
     .type { width:100%; margin:0; font-size:40pt; line-height:1; font-weight:700; text-transform:uppercase; white-space:nowrap; }
-    .ship { width:100%; height:210mm; display:flex; align-items:center; justify-content:center; font-size:220pt; line-height:.88; font-weight:900; text-transform:uppercase; overflow:hidden; overflow-wrap:normal; word-break:normal; }
+
+    .ship {
+      width:100%;
+      height:210mm;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:220pt;
+      line-height:.88;
+      font-weight:400;
+      text-transform:uppercase;
+      overflow:hidden;
+      overflow-wrap:normal;
+      word-break:normal;
+    }
+
     .error { display:none; max-width:900px; margin:12px auto; padding:12px; border:1px solid #dc2626; background:#fee2e2; color:#991b1b; border-radius:8px; }
+
     @page { size: A4 landscape; margin: 0; }
+
     @media print {
       html, body {
         margin:0 !important;
@@ -32,8 +49,19 @@
         background:#fff !important;
         overflow:hidden !important;
       }
-      .toolbar,.hint,.error { display:none !important; }
-      #pages { margin:0 !important; padding:0 !important; width:297mm !important; height:auto !important; overflow:visible !important; }
+
+      .toolbar,.hint,.error {
+        display:none !important;
+      }
+
+      #pages {
+        margin:0 !important;
+        padding:0 !important;
+        width:297mm !important;
+        height:auto !important;
+        overflow:visible !important;
+      }
+
       .sheet {
         margin:0 !important;
         padding:3mm !important;
@@ -47,53 +75,95 @@
         overflow:hidden !important;
         transform:none !important;
       }
-      .sheet:last-child { page-break-after:auto !important; break-after:auto !important; }
-      .ship { height:204mm !important; width:291mm !important; }
+
+      .sheet:last-child {
+        page-break-after:auto !important;
+        break-after:auto !important;
+      }
+
+      .ship {
+        height:204mm !important;
+        width:291mm !important;
+      }
     }
+
     @media screen and (max-width:1000px) {
-      .sheet { transform-origin:top left; transform:scale(.55); margin:10px; }
-      body { overflow-x:auto; }
+      .sheet {
+        transform-origin:top left;
+        transform:scale(.55);
+        margin:10px;
+      }
+
+      body {
+        overflow-x:auto;
+      }
     }
   </style>
 </head>
+
 <body>
+
   <form class="toolbar" id="controls">
     <label for="shipInput">Statek</label>
     <input id="shipInput" autocomplete="off">
+
     <label for="typeInput">Typ</label>
     <input id="typeInput" autocomplete="off">
+
     <button type="submit">Drukuj</button>
     <button type="button" class="secondary" id="refreshBtn">Odśwież podgląd</button>
   </form>
-  <div class="hint">Format: A4 poziomo. Przy wydruku wybierz skalę 100% i wyłącz nagłówki oraz stopki przeglądarki.</div>
+
+  <div class="hint">
+    Format: A4 poziomo. Przy wydruku wybierz skalę 100% i wyłącz nagłówki oraz stopki przeglądarki.
+  </div>
+
   <div class="error" id="error" role="alert"></div>
+
   <main id="pages"></main>
 
   <script>
   (() => {
     const root = document;
     const params = new URLSearchParams(location.search);
-    const clean = (v, fallback='') => (v ?? fallback).toString().replace(/[<>]/g,'').trim().slice(0,180);
+
+    const clean = (v, fallback='') =>
+      (v ?? fallback)
+        .toString()
+        .replace(/[<>]/g,'')
+        .trim()
+        .slice(0,180);
+
     const shipInput = root.getElementById('shipInput');
     const typeInput = root.getElementById('typeInput');
     const pages = root.getElementById('pages');
     const error = root.getElementById('error');
+
     shipInput.value = clean(params.get('ship'));
     typeInput.value = clean(params.get('type'));
 
     function fit(el, max=300, min=28) {
-      const raw = (el.dataset.raw || el.textContent || '').trim().replace(/\s+/g, ' ');
+      const raw = (el.dataset.raw || el.textContent || '')
+        .trim()
+        .replace(/\s+/g, ' ');
+
       el.dataset.raw = raw;
+
       const words = raw.split(' ').filter(Boolean);
 
       // Build only sensible word-boundary layouts: one line first,
       // then balanced 2/3-line variants for multi-word vessel names.
       const layouts = [[raw]];
+
       if (words.length > 1) {
         for (let i=1; i<words.length; i++) {
-          layouts.push([words.slice(0,i).join(' '), words.slice(i).join(' ')]);
+          layouts.push([
+            words.slice(0,i).join(' '),
+            words.slice(i).join(' ')
+          ]);
         }
       }
+
       if (words.length > 2) {
         for (let i=1; i<words.length-1; i++) {
           for (let j=i+1; j<words.length; j++) {
@@ -106,76 +176,166 @@
         }
       }
 
-      let best = {size:min, lines:[raw], score:-1};
+      let best = {
+        size:min,
+        lines:[raw],
+        score:-1
+      };
+
       for (const lines of layouts) {
+
         el.textContent = lines.join('\n');
         el.style.whiteSpace = 'pre-line';
+
         let size=max;
         el.style.fontSize=size+'pt';
-        while (size>min && (el.scrollWidth>el.clientWidth || el.scrollHeight>el.clientHeight)) {
+
+        while (
+          size>min &&
+          (
+            el.scrollWidth>el.clientWidth ||
+            el.scrollHeight>el.clientHeight
+          )
+        ) {
           size-=2;
           el.style.fontSize=size+'pt';
         }
+
         const widths = lines.map(line => {
+
           const probe=document.createElement('span');
-          probe.style.cssText='position:absolute;visibility:hidden;white-space:nowrap;font:900 '+size+'pt Arial,Helvetica,sans-serif;text-transform:uppercase;';
+
+          probe.style.cssText=
+            'position:absolute;' +
+            'visibility:hidden;' +
+            'white-space:nowrap;' +
+            'font:400 '+size+'pt Arial,Helvetica,sans-serif;' +
+            'text-transform:uppercase;';
+
           probe.textContent=line;
+
           document.body.appendChild(probe);
+
           const w=probe.getBoundingClientRect().width;
+
           probe.remove();
+
           return w;
         });
+
         const maxW=Math.max(...widths);
         const minW=Math.min(...widths);
-        // Prefer the largest readable type, then balanced lines that use the width well.
+
+        // Prefer the largest readable type,
+        // then balanced lines that use the width well.
         const balance = maxW ? minW/maxW : 0;
         const score = size*1000 + balance*100 - lines.length;
-        if (score>best.score) best={size,lines,score};
+
+        if (score>best.score) {
+          best={
+            size,
+            lines,
+            score
+          };
+        }
       }
+
       el.textContent=best.lines.join('\n');
       el.style.whiteSpace='pre-line';
       el.style.fontSize=best.size+'pt';
     }
 
     function render() {
+
       const ship=clean(shipInput.value);
       const type=clean(typeInput.value);
-      const requested=Number.parseInt(params.get('copies') || '1',10);
-      const copies=Number.isFinite(requested) ? Math.min(20,Math.max(1,requested)) : 1;
+
+      const requested=Number.parseInt(
+        params.get('copies') || '1',
+        10
+      );
+
+      const copies=Number.isFinite(requested)
+        ? Math.min(20,Math.max(1,requested))
+        : 1;
+
       pages.replaceChildren();
+
       if (!ship) {
-        error.textContent='Brak nazwy statku. Sprawdź pole Statek / Statek_name w Airtable.';
+        error.textContent=
+          'Brak nazwy statku. Sprawdź pole Statek / Statek_name w Airtable.';
         error.style.display='block';
         return false;
       }
+
       error.style.display='none';
+
       for (let i=0;i<copies;i++) {
+
         const page=document.createElement('section');
         page.className='sheet';
+
         const typeEl=document.createElement('div');
         typeEl.className='type';
         typeEl.textContent=type;
         typeEl.style.display=type ? 'block' : 'none';
+
         const shipEl=document.createElement('div');
         shipEl.className='ship';
         shipEl.textContent=ship;
+
         page.append(typeEl,shipEl);
         pages.append(page);
+
         requestAnimationFrame(()=>fit(shipEl));
       }
+
       return true;
     }
 
-    root.getElementById('controls').addEventListener('submit', e => {
-      e.preventDefault();
-      if (render()) setTimeout(()=>window.print(),120);
-    });
-    root.getElementById('refreshBtn').addEventListener('click',render);
-    window.addEventListener('resize',()=>root.querySelectorAll('.ship').forEach(el=>fit(el)));
+    root.getElementById('controls')
+      .addEventListener('submit', e => {
+        e.preventDefault();
+
+        if (render()) {
+          setTimeout(()=>window.print(),120);
+        }
+      });
+
+    root.getElementById('refreshBtn')
+      .addEventListener('click',render);
+
+    window.addEventListener('resize',()=>
+      root.querySelectorAll('.ship')
+        .forEach(el=>fit(el))
+    );
+
     render();
-    window.addEventListener('beforeprint', () => { root.querySelectorAll('.ship').forEach(el => fit(el)); });
-    if (params.get('print')==='1' && shipInput.value) setTimeout(() => { root.querySelectorAll('.ship').forEach(el => fit(el)); setTimeout(()=>window.print(),120); },700);
+
+    window.addEventListener('beforeprint', () => {
+      root.querySelectorAll('.ship')
+        .forEach(el => fit(el));
+    });
+
+    if (
+      params.get('print')==='1' &&
+      shipInput.value
+    ) {
+      setTimeout(() => {
+
+        root.querySelectorAll('.ship')
+          .forEach(el => fit(el));
+
+        setTimeout(
+          ()=>window.print(),
+          120
+        );
+
+      },700);
+    }
+
   })();
   </script>
+
 </body>
 </html>
