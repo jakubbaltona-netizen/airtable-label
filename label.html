@@ -114,11 +114,12 @@
       display:flex;
       align-items:center;
       justify-content:center;
+
       font-size:220pt;
       line-height:.88;
 
-      /* CIENKA CZCIONKA */
-      font-family:"Arial Narrow",Arial,Helvetica,sans-serif;
+      /* BARDZO CIENKA CZCIONKA */
+      font-family:"Segoe UI Light","Segoe UI",Arial,sans-serif;
       font-weight:300;
 
       text-transform:uppercase;
@@ -195,7 +196,6 @@
     }
 
     @media screen and (max-width:1000px) {
-
       .sheet {
         transform-origin:top left;
         transform:scale(.55);
@@ -221,10 +221,7 @@
 
     <button type="submit">Drukuj</button>
 
-    <button
-      type="button"
-      class="secondary"
-      id="refreshBtn">
+    <button type="button" class="secondary" id="refreshBtn">
       Odśwież podgląd
     </button>
 
@@ -234,11 +231,7 @@
     Format: A4 poziomo. Przy wydruku wybierz skalę 100% i wyłącz nagłówki oraz stopki przeglądarki.
   </div>
 
-  <div
-    class="error"
-    id="error"
-    role="alert">
-  </div>
+  <div class="error" id="error" role="alert"></div>
 
   <main id="pages"></main>
 
@@ -247,9 +240,7 @@
   (() => {
 
     const root = document;
-
-    const params =
-      new URLSearchParams(location.search);
+    const params = new URLSearchParams(location.search);
 
     const clean = (v, fallback='') =>
       (v ?? fallback)
@@ -258,25 +249,13 @@
         .trim()
         .slice(0,180);
 
+    const shipInput = root.getElementById('shipInput');
+    const typeInput = root.getElementById('typeInput');
+    const pages = root.getElementById('pages');
+    const error = root.getElementById('error');
 
-    const shipInput =
-      root.getElementById('shipInput');
-
-    const typeInput =
-      root.getElementById('typeInput');
-
-    const pages =
-      root.getElementById('pages');
-
-    const error =
-      root.getElementById('error');
-
-
-    shipInput.value =
-      clean(params.get('ship'));
-
-    typeInput.value =
-      clean(params.get('type'));
+    shipInput.value = clean(params.get('ship'));
+    typeInput.value = clean(params.get('type'));
 
 
     function fit(el, max=300, min=28) {
@@ -288,16 +267,9 @@
 
       el.dataset.raw = raw;
 
-      const words =
-        raw.split(' ').filter(Boolean);
-
-
-      // Najpierw jedna linia.
-      // Następnie sprawdzane są sensowne
-      // podziały na 2 lub 3 linie.
+      const words = raw.split(' ').filter(Boolean);
 
       const layouts = [[raw]];
-
 
       if (words.length > 1) {
 
@@ -312,7 +284,6 @@
 
       }
 
-
       if (words.length > 2) {
 
         for (let i=1; i<words.length-1; i++) {
@@ -320,13 +291,9 @@
           for (let j=i+1; j<words.length; j++) {
 
             layouts.push([
-
               words.slice(0,i).join(' '),
-
               words.slice(i,j).join(' '),
-
               words.slice(j).join(' ')
-
             ]);
 
           }
@@ -334,7 +301,6 @@
         }
 
       }
-
 
       let best = {
         size:min,
@@ -345,18 +311,12 @@
 
       for (const lines of layouts) {
 
-        el.textContent =
-          lines.join('\n');
-
-        el.style.whiteSpace =
-          'pre-line';
-
+        el.textContent = lines.join('\n');
+        el.style.whiteSpace = 'pre-line';
 
         let size=max;
 
-        el.style.fontSize =
-          size+'pt';
-
+        el.style.fontSize = size+'pt';
 
         while (
           size > min &&
@@ -368,51 +328,43 @@
 
           size -= 2;
 
-          el.style.fontSize =
-            size+'pt';
+          el.style.fontSize = size+'pt';
 
         }
 
 
-        const widths =
-          lines.map(line => {
+        const widths = lines.map(line => {
 
-            const probe =
-              document.createElement('span');
-
-
-            /*
-              POMIAR UŻYWA TEJ SAMEJ
-              CIENKIEJ CZCIONKI CO ETYKIETA
-            */
-
-            probe.style.cssText =
-              'position:absolute;' +
-              'visibility:hidden;' +
-              'white-space:nowrap;' +
-              'font-weight:300;' +
-              'font-size:'+size+'pt;' +
-              'font-family:"Arial Narrow",Arial,Helvetica,sans-serif;' +
-              'text-transform:uppercase;';
+          const probe =
+            document.createElement('span');
 
 
-            probe.textContent =
-              line;
+          /*
+            POMIAR TEJ SAMEJ CIENKIEJ CZCIONKI
+          */
+
+          probe.style.cssText =
+            'position:absolute;' +
+            'visibility:hidden;' +
+            'white-space:nowrap;' +
+            'font-family:"Segoe UI Light","Segoe UI",Arial,sans-serif;' +
+            'font-weight:300;' +
+            'font-size:'+size+'pt;' +
+            'text-transform:uppercase;';
 
 
-            document.body.appendChild(probe);
+          probe.textContent = line;
 
+          document.body.appendChild(probe);
 
-            const w =
-              probe.getBoundingClientRect().width;
+          const w =
+            probe.getBoundingClientRect().width;
 
+          probe.remove();
 
-            probe.remove();
+          return w;
 
-
-            return w;
-
-          });
+        });
 
 
         const maxW =
@@ -421,14 +373,8 @@
         const minW =
           Math.min(...widths);
 
-
-        // Preferuje największą możliwą czcionkę.
-        // Przy podobnej wielkości wybiera
-        // bardziej równomierny układ linii.
-
         const balance =
           maxW ? minW/maxW : 0;
-
 
         const score =
           size*1000 +
@@ -469,13 +415,11 @@
       const type =
         clean(typeInput.value);
 
-
       const requested =
         Number.parseInt(
           params.get('copies') || '1',
           10
         );
-
 
       const copies =
         Number.isFinite(requested)
@@ -484,7 +428,6 @@
               Math.max(1,requested)
             )
           : 1;
-
 
       pages.replaceChildren();
 
@@ -506,11 +449,7 @@
         'none';
 
 
-      for (
-        let i=0;
-        i<copies;
-        i++
-      ) {
+      for (let i=0; i<copies; i++) {
 
         const page =
           document.createElement('section');
@@ -547,16 +486,13 @@
           shipEl
         );
 
-
         pages.append(page);
-
 
         requestAnimationFrame(
           () => fit(shipEl)
         );
 
       }
-
 
       return true;
 
@@ -595,13 +531,11 @@
     window.addEventListener(
       'resize',
       () =>
-
         root
           .querySelectorAll('.ship')
           .forEach(
             el => fit(el)
           )
-
     );
 
 
@@ -635,7 +569,6 @@
             .forEach(
               el => fit(el)
             );
-
 
           setTimeout(
             () => window.print(),
